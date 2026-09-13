@@ -1,0 +1,14 @@
+model File {
+    id         String @id @default(uuid())
+    fileName   String
+    fileSize   Int
+    fileType   String
+    buffer     Bytes
+    uploadedAt DateTime @default(now())
+    uploadedBy String
+
+    user User @relation(fields: [uploadedBy], references: [id])
+
+    @@map("files")
+    @@schema("public")
+}
