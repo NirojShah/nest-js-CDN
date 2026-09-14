@@ -55,12 +55,22 @@ class FileServiceImpl implements FileService {
     getFiles(): Promise<ResponseApi> {
         throw new Error("Method not implemented.");
     }
-    deleteFile(fileId: string): Promise<ResponseApi> {
-        throw new Error("Method not implemented.");
+    async deleteFile(fileId: string): Promise<ResponseApi> {
+        const file = await this.fileRepository.fileExists(fileId);
+        if (!file) {
+            throw new Error("File not found");
+        }
+        await this.fileRepository.deleteFile(fileId);
+        return {
+            statusCode: 200,
+            message: "File deleted successfully",
+            data: null
+        };
     }
     updateFile(fileId: string, updateFileDto: UpdateFileDto): Promise<ResponseApi> {
         throw new Error("Method not implemented.");
     }
 }
+
 
 export default FileServiceImpl;
