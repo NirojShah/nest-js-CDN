@@ -46,6 +46,13 @@ class FileRepository {
         })
     }
 
+    async deleteFile(fileId: string) {
+        return await this.prisma.file.delete({
+            where: {
+                id: fileId
+            }
+        });
+    }
 }
 
 export default FileRepository;
