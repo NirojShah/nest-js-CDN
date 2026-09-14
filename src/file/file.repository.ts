@@ -26,6 +26,15 @@ class FileRepository {
             },
         });
     }
+
+    async fileExists(fileId: string) {
+        return await this.prisma.file.findFirst({
+            where: {
+                id: fileId
+            }
+        });
+    }
+
 }
 
 export default FileRepository;
