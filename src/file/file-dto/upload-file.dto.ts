@@ -12,7 +12,7 @@ class UploadFileDto {
 
     @IsArray()
     @IsNumber({}, { each: true })
-    file: number[]; // Array of byte values representing the buffer
+    file: Buffer; // Array of byte values representing the buffer
 
     @IsString()
     @IsUUID() // Validates that uploadedBy is a proper user UUID string
