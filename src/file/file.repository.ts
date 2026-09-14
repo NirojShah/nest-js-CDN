@@ -35,6 +35,17 @@ class FileRepository {
         });
     }
 
+    async updateFile(updateFileDto: UpdateFileDto, fileId: string) {
+        return await this.prisma.file.update({
+            where: {
+                id: fileId
+            },
+            data: {
+                ...updateFileDto
+            }
+        })
+    }
+
 }
 
 export default FileRepository;
