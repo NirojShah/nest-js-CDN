@@ -41,8 +41,16 @@ class FileServiceImpl implements FileService {
         }
     }
 
-    getFile(fileId: string): Promise<ResponseApi> {
-        throw new Error("Method not implemented.");
+    async getFile(fileId: string): Promise<ResponseApi> {
+        const file = await this.fileRepository.fileExists(fileId);
+        if (!file) {
+            throw new Error("File not found");
+        }
+        return {
+            statusCode: 200,
+            message: "File retrieved successfully",
+            data: file
+        };
     }
     getFiles(): Promise<ResponseApi> {
         throw new Error("Method not implemented.");
