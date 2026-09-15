@@ -27,11 +27,19 @@ class AuthenticateUser {
             expiresIn: "1d",
             algorithm: "HS256"
         })
-
         return {
             status: "success",
             token: token,
             statusCode: 200
+        }
+    }
+
+    async verifyToken(token: string): Promise<boolean> {
+        try {
+            jwt.verify(token, this.secretKey);
+            return true;
+        } catch (error) {
+            return false;
         }
     }
 }
