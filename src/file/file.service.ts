@@ -2,7 +2,7 @@ import { Injectable } from "@nestjs/common";
 import type { ResponseApi } from "../response/response.interface.js";
 import type UpdateFileDto from "./file-dto/update-file.dto.js";
 import type UploadFileDto from "./file-dto/upload-file.dto.js";
-import type FileRepository from "./file.repository.js";
+import FileRepository from "./file.repository.js";
 
 interface FileService {
     postFile(uploadFileDto: UploadFileDto, userId: string): Promise<ResponseApi>;
@@ -62,7 +62,7 @@ class FileServiceImpl implements FileService {
         }
         await this.fileRepository.deleteFile(fileId);
         return {
-            statusCode: 200,
+            statusCode: 201,
             message: "File deleted successfully",
             data: null
         };
