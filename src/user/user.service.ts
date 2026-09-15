@@ -1,8 +1,8 @@
 // src/user/user.service.ts
-import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
+import { Injectable, NotFoundException, ConflictException, Body, Post } from '@nestjs/common';
 import type { ResponseApi } from '../response/response.interface.js';
 import type { CreateUserDto } from './dto/create-user.dto.js';
-import type { UpdateUserDto } from './dto/update-user.dto.js'; 
+import type { UpdateUserDto } from './dto/update-user.dto.js';
 import type { User } from '@prisma/client';
 import { UserRepository } from './user.repository.js';
 import { createResponse } from '../common/utils/response.util.js';
@@ -17,7 +17,7 @@ export interface UserServiceInterface {
 
 @Injectable()
 export class UserService implements UserServiceInterface {
-    constructor(private readonly userRepository: UserRepository) {}
+    constructor(private readonly userRepository: UserRepository) { }
 
     async createUser(createUserDto: CreateUserDto): Promise<ResponseApi<User>> {
         const existingUser = await this.userRepository.findByEmail(createUserDto.email);
@@ -44,7 +44,7 @@ export class UserService implements UserServiceInterface {
 
     async updateUser(id: string, updateUserDto: UpdateUserDto): Promise<ResponseApi<User>> {
         await this.findUserById(id); // Throws 404 if user doesn't exist
-        
+
         if (updateUserDto.email) {
             const existingUser = await this.userRepository.findByEmail(updateUserDto.email);
             if (existingUser && existingUser.id !== id) {
@@ -61,4 +61,5 @@ export class UserService implements UserServiceInterface {
         await this.userRepository.delete(id);
         return createResponse('User deleted successfully', null);
     }
+
 }

@@ -7,7 +7,7 @@ import { User } from '@prisma/client';
 
 @Injectable()
 export class UserRepository {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) { }
 
   async create(createUserDto: CreateUserDto): Promise<User> {
     return this.prisma.user.create({
@@ -42,5 +42,21 @@ export class UserRepository {
     return this.prisma.user.delete({
       where: { id },
     });
+  }
+
+  async authenticateUser(email: string, password: string): Promise<Partial<User> | null> {
+    const user = await this.prisma.user.findFirst({
+      where: {
+        email: email,
+        password: password
+      },
+      select: {
+        email: true,
+        id: true,
+        name: true
+      }
+    })
+
+    return user;
   }
 }
