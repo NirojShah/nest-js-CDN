@@ -16,10 +16,11 @@ import { CreateUserDto } from './dto/create-user.dto.js';
 import { UpdateUserDto } from './dto/update-user.dto.js';
 import type { ResponseApi } from '../response/response.interface.js';
 import type { User } from '@prisma/client';
+import type LoginDto from './dto/login-dto.js';
 
 @Controller('users')
 export class UserController {
-  constructor(private readonly userService: UserService) {}
+  constructor(private readonly userService: UserService) { }
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
@@ -54,5 +55,10 @@ export class UserController {
     @Param('id', ParseUUIDPipe) id: string,
   ): Promise<ResponseApi<null>> {
     return this.userService.deleteUser(id);
+  }
+
+  @Post("/login")
+  async login(@Body() loginDto: LoginDto) {
+    throw new Error("Not implemented.")
   }
 }
