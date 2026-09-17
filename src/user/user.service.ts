@@ -6,6 +6,7 @@ import type { UpdateUserDto } from './dto/update-user.dto.js';
 import type { User } from '@prisma/client';
 import { UserRepository } from './user.repository.js';
 import { createResponse } from '../common/utils/response.util.js';
+import type LoginDto from './dto/login-dto.js';
 
 export interface UserServiceInterface {
     createUser(createUserDto: CreateUserDto): Promise<ResponseApi<User>>;
@@ -60,6 +61,12 @@ export class UserService implements UserServiceInterface {
         await this.findUserById(id); // Throws 404 if user doesn't exist
         await this.userRepository.delete(id);
         return createResponse('User deleted successfully', null);
+    }
+
+    async loginUser(loginDto: LoginDto) {
+        const userExists = await this.userRepository.authenticateUser(loginDto.email, loginDto.password)
+
+        return userExists;
     }
 
 }
