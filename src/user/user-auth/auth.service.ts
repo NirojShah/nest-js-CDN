@@ -1,46 +1,43 @@
+import { Injectable } from "@nestjs/common";
+import jwt from "jsonwebtoken";
 import type LoginDto from "../dto/login-dto.js";
 import { UserRepository } from "../user.repository.js";
-import jwt from "jsonwebtoken"
 
 export type TokenResponse = {
-    status: string,
-    token?: string,
-    statusCode: number
-}
+    status: string;
+    token?: string;
+    statusCode: number;
+};
 
+export type GenerateTokenType = {
+    email: string;
+    name: string;
+    id: string;
+};
+
+@Injectable()
 class AuthenticateUser {
-    private readonly secretKey = "This is the secret key."
-    constructor(private readonly userRepository: UserRepository) { }
 
-    async generateToken(loginDto: LoginDto): Promise<TokenResponse> {
+    private readonly secretKey =
+        process.env.JWT_SECRET ?? "This is the secret key.";
+    async generateToken(
+        userDetails: GenerateTokenType
+    ): Promise<TokenResponse> {
 
-        const userExists = await this.userRepository.authenticateUser(loginDto.email, loginDto.password);
-
-        if (userExists == null) {
-            return {
-                status: "NOT AUTHENTICATED",
-                statusCode: 401
+        const token = jwt.sign(
+            userDetails,
+            this.secretKey,
+            {
+                expiresIn: "1d",
+                algorithm: "HS256",
             }
-        }
+        );
 
-        const token = jwt.sign(userExists, this.secretKey, {
-            expiresIn: "1d",
-            algorithm: "HS256"
-        })
         return {
             status: "success",
-            token: token,
-            statusCode: 200
-        }
-    }
-
-    async verifyToken(token: string): Promise<boolean> {
-        try {
-            jwt.verify(token, this.secretKey);
-            return true;
-        } catch (error) {
-            return false;
-        }
+            token,
+            statusCode: 200,
+        };
     }
 }
 
