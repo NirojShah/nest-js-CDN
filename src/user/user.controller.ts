@@ -17,10 +17,16 @@ import { UpdateUserDto } from './dto/update-user.dto.js';
 import type { ResponseApi } from '../response/response.interface.js';
 import type { User } from '@prisma/client';
 import type LoginDto from './dto/login-dto.js';
+import AuthenticateUser from './user-auth/auth.service.js';
+import type { GenerateTokenType } from './user-auth/auth.service.js';
+import { UserData } from '../auth/user-data.decorator.js';
 
 @Controller('users')
 export class UserController {
-  constructor(private readonly userService: UserService) { }
+  constructor(
+    private readonly userService: UserService,
+    private readonly AuthService: AuthenticateUser
+  ) { }
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
@@ -58,7 +64,25 @@ export class UserController {
   }
 
   @Post("/login")
-  async login(@Body() loginDto: LoginDto) {
-    throw new Error("Not implemented.")
+  async login(@Body() loginDto: LoginDto): Promise<ResponseApi> {
+    const data = await this.userService.loginUser(loginDto);
+    const generateToken = await this.AuthService.generateToken(data as GenerateTokenType)
+
+    if (generateToken.status == "success") {
+      return {
+        message: "successfully logged in.",
+        statusCode: 201,
+        data: {
+          token: generateToken.token
+        }
+      }
+    }
+
+    throw new Error("Failed to login.")
+  }
+
+  @Get("/testing")
+  async testApi(@UserData() userData: GenerateTokenType) {
+    console.log(userData)
   }
 }
