@@ -39,6 +39,30 @@ class AuthenticateUser {
             statusCode: 200,
         };
     }
+
+    async verifyToken(
+        token: string
+    ): Promise<GenerateTokenType | null> {
+
+        try {
+
+            const decoded = jwt.verify(
+                token,
+                this.secretKey
+            );
+
+            if (typeof decoded === "string") {
+                return null;
+            }
+
+            return decoded as GenerateTokenType;
+
+        } catch (error) {
+
+            return null;
+
+        }
+    }
 }
 
 export default AuthenticateUser;
