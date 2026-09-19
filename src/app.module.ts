@@ -5,10 +5,13 @@ import { UserModule } from './user/user.module.js';
 import { PrismaModule } from './prisma/prisma.module.js';
 import { FileController } from './file/file.controller.js';
 import { FileModule } from './file/file.module.js';
-
+import { AuthGuard } from './auth/auth.guard.js';
 @Module({
-  imports: [UserModule, PrismaModule, FileModule],
-  controllers: [AppController, FileController],
-  providers: [AppService],
+  imports: [UserModule, PrismaModule, FileModule
+  ],
+  controllers: [AppController, FileController,
+  ],
+  providers: [AppService, AuthGuard
+  ],
 })
-export class AppModule {}
+export class AppModule { }
