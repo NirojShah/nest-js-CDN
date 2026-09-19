@@ -1,0 +1,100 @@
+### Variables
+@baseUrl = http://localhost:3000
+@createdUserId = 
+
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6Im5pcm9qLnNoYWhAZXhhbXBsZS5jb20iLCJpZCI6Ijg3ZDdlMTU5LTA2NGEtNDQxMy1iZTExLTBlZjI3ZDFjZTQzNyIsIm5hbWUiOiJOaXJvaiBTaGFoIChVcGRhdGVkKSIsImlhdCI6MTc4OTU4MDM5NiwiZXhwIjoxNzg5NjY2Nzk2fQ.ecIf7rH-WcaqGo3hQ12zGSD0xRYwQrE-Pc6jneBtQG4
+
+###############################################
+# HEALTH / STATUS
+###############################################
+
+### Check Server Status
+GET {{baseUrl}}/status
+Content-Type: application/json
+
+
+###############################################
+# USER MODULE APIS
+###############################################
+
+### 1. Create User
+# @name createUser
+POST {{baseUrl}}/users
+Content-Type: application/json
+
+{
+  "email": "niroj.shah@example.com",
+  "password": "SecurePassword123!",
+  "name": "Niroj Shah"
+}
+
+###
+
+# 1.2 Login
+POST {{baseUrl}}/users/login
+Content-Type: application/json
+
+{
+  "email":"niroj.shah@example.com",
+  "password": "SecurePassword123!"
+}
+
+### 2. Get All Users
+GET {{baseUrl}}/users
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+### 3. Get User By ID
+# Replace with a valid ID or use the variable from creation
+GET {{baseUrl}}/users/87d7e159-064a-4413-be11-0ef27d1ce437
+Content-Type: application/json
+
+### 4. Update User (Partial Update)
+PUT {{baseUrl}}/users/87d7e159-064a-4413-be11-0ef27d1ce437
+Content-Type: application/json
+
+{
+  "name": "Niroj Shah (Updated)"
+}
+
+### 5. Delete User
+DELETE {{baseUrl}}/users/87d7e159-064a-4413-be11-0ef27d1ce437
+Content-Type: application/json
+
+
+###############################################
+# ERROR CASES & VALIDATIONS
+###############################################
+
+### Test Validation Error: Invalid Email & Short Password
+POST {{baseUrl}}/users
+Content-Type: application/json
+
+{
+  "email": "invalid-email",
+  "password": "123"
+}
+
+### Test Conflict Error: Duplicate Email
+POST {{baseUrl}}/users
+Content-Type: application/json
+
+{
+  "email": "niroj.shah@example.com",
+  "password": "SecurePassword123!",
+  "name": "Duplicate Test"
+}
+
+### Test Not Found Error: Non-existent User ID
+GET {{baseUrl}}/users/00000000-0000-0000-0000-000000000000
+Content-Type: application/json
+
+
+
+
+
+###
+
+GET {{baseUrl}}/users/testing
+Content-Type: application/json
+Authorization: Bearer {{token}}
