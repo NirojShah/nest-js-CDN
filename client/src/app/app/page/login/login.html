@@ -1,0 +1,59 @@
+<main class="auth-shell">
+  <div class="backdrop-orb orb-one"></div>
+  <div class="backdrop-orb orb-two"></div>
+
+  <section class="auth-card" aria-label="Login panel">
+    <div class="brand-block">
+      <span class="brand-pill">CDN Portal</span>
+      <h1>Welcome back</h1>
+      <p>Access your account and continue managing your content.</p>
+    </div>
+
+    <form [formGroup]="form" (ngSubmit)="submit()" class="auth-form">
+      <label class="form-field">
+        <span>Email</span>
+        <input
+          type="email"
+          formControlName="email"
+          placeholder="you@example.com"
+          autocomplete="email"
+        />
+      </label>
+
+      <label class="form-field">
+        <span>Password</span>
+        <input
+          type="password"
+          formControlName="password"
+          placeholder="Enter your password"
+          autocomplete="current-password"
+        />
+      </label>
+
+      <div class="helper-row">
+        <label class="remember-me">
+          <input type="checkbox" />
+          <span>Remember me</span>
+        </label>
+        <a href="#" class="inline-link">Forgot password?</a>
+      </div>
+
+      <button type="submit" class="primary-button" [disabled]="isSubmitting">
+        {{ isSubmitting ? 'Signing in...' : 'Sign in' }}
+      </button>
+
+      @if (errorMessage) {
+        <p class="status-message error-message">{{ errorMessage }}</p>
+      }
+
+      @if (successMessage) {
+        <p class="status-message success-message">{{ successMessage }}</p>
+      }
+    </form>
+
+    <p class="switch-copy">
+      New here?
+      <a routerLink="/signup" class="inline-link">Create an account</a>
+    </p>
+  </section>
+</main>
