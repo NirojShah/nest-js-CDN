@@ -1,0 +1,62 @@
+<section class="dashboard-shell">
+  <header class="topbar">
+    <div class="brand-block">
+      <span class="brand-badge">CDN</span>
+      <div>
+        <p class="eyebrow">Content Delivery</p>
+        <h1>Dashboard</h1>
+      </div>
+    </div>
+
+    <button type="button" class="primary-button">Upload file</button>
+  </header>
+
+  <section class="stats-grid" aria-label="Content metrics">
+    @for (stat of stats; track stat.label) {
+      <article class="stat-card" [class]="'tone-' + stat.tone">
+        <p>{{ stat.label }}</p>
+        <h2>{{ stat.value }}</h2>
+        <span>{{ stat.detail }}</span>
+      </article>
+    }
+  </section>
+
+  <section class="content-grid">
+    <article class="panel">
+      <div class="panel-header">
+        <h3>Quick actions</h3>
+        <a href="#" aria-label="View all actions">View all</a>
+      </div>
+
+      <ul class="action-list">
+        @for (action of quickActions; track action) {
+          <li>
+            <span class="dot"></span>
+            <span>{{ action }}</span>
+          </li>
+        }
+      </ul>
+    </article>
+
+    <article class="panel">
+      <div class="panel-header">
+        <h3>Recent uploads</h3>
+        <a href="#" aria-label="View all files">Open library</a>
+      </div>
+
+      <ul class="file-list">
+        @for (file of recentFiles; track file.name) {
+          <li>
+            <div>
+              <strong>{{ file.name }}</strong>
+              <small>{{ file.type }} · {{ file.size }}</small>
+            </div>
+            <span class="status" [class]="file.status.toLowerCase() === 'published' ? 'published' : file.status.toLowerCase() === 'ready' ? 'ready' : 'processing'">
+              {{ file.status }}
+            </span>
+          </li>
+        }
+      </ul>
+    </article>
+  </section>
+</section>
