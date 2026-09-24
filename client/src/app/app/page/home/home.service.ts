@@ -26,7 +26,10 @@ class HomeService implements IHomeService {
     }
 
     fetchRecentFiles(): Observable<any> {
-
+        return this.fetchFiles().pipe(
+            // temporary until backend provides a recent-files API
+            map((response) => response.data ?? [])
+        );
     }
 
     uploadFile(file: File): Observable<any> {
