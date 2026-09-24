@@ -19,7 +19,10 @@ class HomeService implements IHomeService {
     }
 
     fetchNoOfFiles(): Observable<number> {
-
+        return this.fetchFiles().pipe(
+            // temporary until backend provides a count API
+            map((response) => response.data?.length ?? 0)
+        );
     }
 
     fetchRecentFiles(): Observable<any> {
