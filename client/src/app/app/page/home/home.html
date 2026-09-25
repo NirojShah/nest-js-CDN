@@ -8,8 +8,15 @@
       </div>
     </div>
 
-    <button type="button" class="primary-button">Upload file</button>
+    <input #fileInput type="file" hidden (change)="onFileSelected($event)" />
+    <button type="button" class="primary-button" (click)="fileInput.click()">
+      {{ loading ? 'Uploading…' : 'Upload file' }}
+    </button>
   </header>
+
+  @if (errorMessage) {
+    <p class="error-message">{{ errorMessage }}</p>
+  }
 
   <section class="stats-grid" aria-label="Content metrics">
     @for (stat of stats; track stat.label) {
