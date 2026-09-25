@@ -19,10 +19,15 @@ class FileServiceImpl implements FileService {
     async postFile(uploadFileDto: UploadFileDto, userId: string): Promise<ResponseApi> {
 
         try {
-            const fileBuffer = Buffer.from(uploadFileDto.file);
+            const fileBuffer = Buffer.isBuffer(uploadFileDto.file)
+                ? uploadFileDto.file
+                : Buffer.from(uploadFileDto.file ?? []);
 
             const response = await this.fileRepository.uploadFile(
-                uploadFileDto,
+                {
+                    ...uploadFileDto,
+                    uploadedBy: uploadFileDto.uploadedBy ?? userId,
+                },
                 fileBuffer
             );
 
@@ -52,8 +57,13 @@ class FileServiceImpl implements FileService {
             data: file
         };
     }
-    getFiles(): Promise<ResponseApi> {
-        throw new Error("Method not implemented.");
+    async getFiles(): Promise<ResponseApi> {
+        const files = await this.fileRepository.getFiles();
+        return {
+            statusCode: 200,
+            message: "Files retrieved successfully",
+            data: files,
+        };
     }
     async deleteFile(fileId: string): Promise<ResponseApi> {
         const file = await this.fileRepository.fileExists(fileId);
