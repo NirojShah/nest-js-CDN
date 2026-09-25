@@ -7,11 +7,15 @@ import type { ResponseApi } from './response/response.interface.js';
 export class AppController {
   constructor(private readonly appService: AppService) {}
 
+  getHello(): string {
+    return this.appService.getHello();
+  }
+
   @Get('/status')
   async status(): Promise<ResponseApi<null>> {
     return {
       statusCode: 200,
-      message: this.appService.getHello(), // "Server is running smoothly!"
+      message: this.getHello(),
       data: null,
     };
   }

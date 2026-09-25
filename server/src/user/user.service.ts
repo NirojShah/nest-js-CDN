@@ -1,5 +1,5 @@
 // src/user/user.service.ts
-import { Injectable, NotFoundException, ConflictException, Body, Post } from '@nestjs/common';
+import { Injectable, NotFoundException, ConflictException, Body, Post, Optional } from '@nestjs/common';
 import type { ResponseApi } from '../response/response.interface.js';
 import type { CreateUserDto } from './dto/create-user.dto.js';
 import type { UpdateUserDto } from './dto/update-user.dto.js';
@@ -18,25 +18,37 @@ export interface UserServiceInterface {
 
 @Injectable()
 export class UserService implements UserServiceInterface {
-    constructor(private readonly userRepository: UserRepository) { }
+    constructor(@Optional() private readonly userRepository?: UserRepository) { }
+
+    private getRepository(): UserRepository {
+        const repository = this.userRepository;
+        if (!repository) {
+            throw new Error('UserRepository is not available');
+        }
+
+        return repository;
+    }
 
     async createUser(createUserDto: CreateUserDto): Promise<ResponseApi<User>> {
-        const existingUser = await this.userRepository.findByEmail(createUserDto.email);
+        const repository = this.getRepository();
+        const existingUser = await repository.findByEmail(createUserDto.email);
         if (existingUser) {
             throw new ConflictException('User with this email already exists');
         }
 
-        const user = await this.userRepository.create(createUserDto);
+        const user = await repository.create(createUserDto);
         return createResponse('User created successfully', user, 201);
     }
 
     async findAllUsers(): Promise<ResponseApi<User[]>> {
-        const users = await this.userRepository.findAll();
+        const repository = this.getRepository();
+        const users = await repository.findAll();
         return createResponse('Users retrieved successfully', users);
     }
 
     async findUserById(id: string): Promise<ResponseApi<User>> {
-        const user = await this.userRepository.findById(id);
+        const repository = this.getRepository();
+        const user = await repository.findById(id);
         if (!user) {
             throw new NotFoundException(`User with ID ${id} not found`);
         }
@@ -44,27 +56,30 @@ export class UserService implements UserServiceInterface {
     }
 
     async updateUser(id: string, updateUserDto: UpdateUserDto): Promise<ResponseApi<User>> {
+        const repository = this.getRepository();
         await this.findUserById(id); // Throws 404 if user doesn't exist
 
         if (updateUserDto.email) {
-            const existingUser = await this.userRepository.findByEmail(updateUserDto.email);
+            const existingUser = await repository.findByEmail(updateUserDto.email);
             if (existingUser && existingUser.id !== id) {
                 throw new ConflictException('Email is already in use by another account');
             }
         }
 
-        const updatedUser = await this.userRepository.update(id, updateUserDto);
+        const updatedUser = await repository.update(id, updateUserDto);
         return createResponse('User updated successfully', updatedUser);
     }
 
     async deleteUser(id: string): Promise<ResponseApi<null>> {
+        const repository = this.getRepository();
         await this.findUserById(id); // Throws 404 if user doesn't exist
-        await this.userRepository.delete(id);
+        await repository.delete(id);
         return createResponse('User deleted successfully', null);
     }
 
     async loginUser(loginDto: LoginDto) {
-        const userExists = await this.userRepository.authenticateUser(loginDto.email, loginDto.password)
+        const repository = this.getRepository();
+        const userExists = await repository.authenticateUser(loginDto.email, loginDto.password)
 
         return userExists;
     }

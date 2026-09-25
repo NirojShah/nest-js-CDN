@@ -11,19 +11,26 @@ class FileRepository {
         uploadFileDto: UploadFileDto,
         fileBuffer: Buffer,
     ) {
-        const arrayBuffer = new ArrayBuffer(fileBuffer.byteLength);
-        const uint8Array = new Uint8Array(arrayBuffer);
+        const normalizedBuffer = Buffer.isBuffer(fileBuffer)
+            ? fileBuffer
+            : Buffer.from(fileBuffer);
 
-        uint8Array.set(fileBuffer);
+        const byteArray = new Uint8Array(normalizedBuffer);
 
         return this.prisma.file.create({
             data: {
                 fileName: uploadFileDto.fileName,
                 fileSize: uploadFileDto.fileSize,
                 fileType: uploadFileDto.fileType,
-                buffer: uint8Array,
+                buffer: byteArray,
                 uploadedBy: uploadFileDto.uploadedBy,
             },
+        });
+    }
+
+    async getFiles() {
+        return this.prisma.file.findMany({
+            orderBy: { uploadedAt: 'desc' },
         });
     }
 
