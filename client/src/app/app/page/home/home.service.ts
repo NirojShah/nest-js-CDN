@@ -1,47 +1,57 @@
-import type { HttpClient } from "@angular/common/http";
-import { map, Observable } from "rxjs";
+import { HttpClient } from '@angular/common/http';
+import { Injectable, inject } from '@angular/core';
+import { map, Observable } from 'rxjs';
+import { AuthService } from '../../../services/auth.service';
 
-interface IHomeService {
-    fetchFiles(): Observable<any>;
-    fetchNoOfFiles(): Observable<number>;
-    fetchRecentFiles(): Observable<any>;
-    uploadFile(file: File): Observable<any>;
+export interface DashboardFile {
+  id?: string;
+  fileName?: string;
+  fileSize?: number;
+  fileType?: string;
+  uploadedAt?: string;
+  uploadedBy?: string;
 }
 
-class HomeService implements IHomeService {
-
-    private readonly url = "http://localhost:5005/api/v1/file";
-
-    constructor(private readonly http: HttpClient) { }
-
-    fetchFiles(): Observable<any> {
-        return this.http.get<any>(`${this.url}/files`);
-    }
-
-    fetchNoOfFiles(): Observable<number> {
-        return this.fetchFiles().pipe(
-            // temporary until backend provides a count API
-            map((response) => response.data?.length ?? 0)
-        );
-    }
-
-    fetchRecentFiles(): Observable<any> {
-        return this.fetchFiles().pipe(
-            // temporary until backend provides a recent-files API
-            map((response) => response.data ?? [])
-        );
-    }
-
-    uploadFile(file: File): Observable<any> {
-        const formData = new FormData();
-
-        formData.append("file", file);
-
-        return this.http.post<any>(
-            `${this.url}/upload`,
-            formData
-        );
-    }
+export interface DashboardResponse<T = unknown> {
+  statusCode: number;
+  message: string;
+  data?: T;
+  error?: string | null;
 }
 
-export default HomeService;
+@Injectable({ providedIn: 'root' })
+export class HomeService {
+  private readonly http = inject(HttpClient);
+  private readonly authService = inject(AuthService);
+  private readonly url = 'http://localhost:3000/file';
+
+  fetchFiles(): Observable<DashboardResponse<DashboardFile[]>> {
+    return this.http.get<DashboardResponse<DashboardFile[]>>(`${this.url}/files`, {
+      headers: this.authService.getAuthHeaders(),
+    });
+  }
+
+  fetchNoOfFiles(): Observable<number> {
+    return this.fetchFiles().pipe(
+      map((response) => response.data?.length ?? 0),
+    );
+  }
+
+  fetchRecentFiles(): Observable<DashboardFile[]> {
+    return this.fetchFiles().pipe(
+      map((response) => response.data ?? []),
+    );
+  }
+
+  uploadFile(file: File): Observable<DashboardResponse<DashboardFile>> {
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('fileName', file.name);
+    formData.append('fileSize', String(file.size));
+    formData.append('fileType', file.type || 'application/octet-stream');
+
+    return this.http.post<DashboardResponse<DashboardFile>>(`${this.url}/upload`, formData, {
+      headers: this.authService.getAuthHeaders(),
+    });
+  }
+}

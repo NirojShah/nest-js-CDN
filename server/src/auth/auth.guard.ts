@@ -21,10 +21,13 @@ export class AuthGuard implements CanActivate {
     const request = context.switchToHttp().getRequest();
 
     // Public routes
-    if (
+    const isPublicRoute =
+      request.path.includes('/status') ||
       request.path.includes('/login') ||
-      request.path.includes('/signup')
-    ) {
+      request.path.includes('/signup') ||
+      (request.method === 'POST' && request.path === '/users');
+
+    if (isPublicRoute) {
       return true;
     }
 

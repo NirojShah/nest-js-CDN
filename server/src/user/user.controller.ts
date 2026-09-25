@@ -10,6 +10,7 @@ import {
   HttpCode,
   HttpStatus,
   ParseUUIDPipe,
+  Optional,
 } from '@nestjs/common';
 import { UserService } from './user.service.js';
 import { CreateUserDto } from './dto/create-user.dto.js';
@@ -24,8 +25,8 @@ import { UserData } from '../auth/user-data.decorator.js';
 @Controller('users')
 export class UserController {
   constructor(
-    private readonly userService: UserService,
-    private readonly AuthService: AuthenticateUser
+    @Optional() private readonly userService?: UserService,
+    @Optional() private readonly AuthService?: AuthenticateUser,
   ) { }
 
   @Post()
@@ -33,19 +34,34 @@ export class UserController {
   async createUser(
     @Body() createUserDto: CreateUserDto,
   ): Promise<ResponseApi<User>> {
-    return this.userService.createUser(createUserDto);
+    const userService = this.userService;
+    if (!userService) {
+      throw new Error('UserService is not available');
+    }
+
+    return userService.createUser(createUserDto);
   }
 
   @Get()
   async findAllUsers(): Promise<ResponseApi<User[]>> {
-    return this.userService.findAllUsers();
+    const userService = this.userService;
+    if (!userService) {
+      throw new Error('UserService is not available');
+    }
+
+    return userService.findAllUsers();
   }
 
   @Get(':id')
   async findUserById(
     @Param('id', ParseUUIDPipe) id: string,
   ): Promise<ResponseApi<User>> {
-    return this.userService.findUserById(id);
+    const userService = this.userService;
+    if (!userService) {
+      throw new Error('UserService is not available');
+    }
+
+    return userService.findUserById(id);
   }
 
   @Put(':id')
@@ -53,18 +69,32 @@ export class UserController {
     @Param('id', ParseUUIDPipe) id: string,
     @Body() updateUserDto: UpdateUserDto,
   ): Promise<ResponseApi<User>> {
-    return this.userService.updateUser(id, updateUserDto);
+    const userService = this.userService;
+    if (!userService) {
+      throw new Error('UserService is not available');
+    }
+
+    return userService.updateUser(id, updateUserDto);
   }
 
   @Delete(':id')
   async deleteUser(
     @Param('id', ParseUUIDPipe) id: string,
   ): Promise<ResponseApi<null>> {
-    return this.userService.deleteUser(id);
+    const userService = this.userService;
+    if (!userService) {
+      throw new Error('UserService is not available');
+    }
+
+    return userService.deleteUser(id);
   }
 
   @Post("/login")
   async login(@Body() loginDto: LoginDto): Promise<ResponseApi> {
+    if (!this.userService || !this.AuthService) {
+      throw new Error('Authentication services are not available');
+    }
+
     const data = await this.userService.loginUser(loginDto);
     const generateToken = await this.AuthService.generateToken(data as GenerateTokenType)
 
