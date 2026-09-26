@@ -1,4 +1,4 @@
-import { IsString, IsNumber, IsArray, IsUUID } from "class-validator";
+import { IsArray, IsNumber, IsOptional, IsString, IsUUID } from "class-validator";
 
 class UploadFileDto {
     @IsString()
@@ -9,6 +9,10 @@ class UploadFileDto {
 
     @IsString()
     fileType: string;
+
+    @IsOptional()
+    @IsString()
+    accessedBy?: string;
 
     @IsArray()
     @IsNumber({}, { each: true })

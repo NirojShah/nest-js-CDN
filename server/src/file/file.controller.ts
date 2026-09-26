@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Post, Put, UploadedFile, UseInterceptors, Optional } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, Put, UploadedFile, UseInterceptors, Optional } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import type UploadFileDto from './file-dto/upload-file.dto.js';
 import type UpdateFileDto from './file-dto/update-file.dto.js';
@@ -25,6 +25,7 @@ export class FileController {
             fileName: body.fileName || file?.originalname || 'upload',
             fileSize: body.fileSize ?? file?.size ?? 0,
             fileType: body.fileType || file?.mimetype || 'application/octet-stream',
+            accessedBy: body.accessedBy ?? 'ALL',
             file: file?.buffer ?? Buffer.from([]),
             uploadedBy: body.uploadedBy ?? 'system',
         };
@@ -49,6 +50,21 @@ export class FileController {
             statusCode: data.statusCode,
             message: data.message,
             data: data.data as File,
+        };
+    }
+
+    @Get(':id/permissions')
+    async getFilePermissions(@Param('id') id: string): Promise<ResponseApi> {
+        const fileService = this.fileService;
+        if (!fileService) {
+            throw new Error('FileService is not available');
+        }
+
+        const data = await fileService.getFilePermissions(id);
+        return {
+            statusCode: data.statusCode,
+            message: data.message,
+            data: data.data,
         };
     }
 
@@ -94,6 +110,21 @@ export class FileController {
             message: data.message,
             statusCode: data.statusCode,
             data: data.data as File,
+        };
+    }
+
+    @Patch(':id/permissions')
+    async updateFilePermission(@Param('id') id: string, @Body() body: { accessedBy: string }): Promise<ResponseApi> {
+        const fileService = this.fileService;
+        if (!fileService) {
+            throw new Error('FileService is not available');
+        }
+
+        const data = await fileService.updateFilePermission(id, body.accessedBy);
+        return {
+            message: data.message,
+            statusCode: data.statusCode,
+            data: data.data,
         };
     }
 
