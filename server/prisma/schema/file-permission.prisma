@@ -1,0 +1,17 @@
+enum FileAccessedBy {
+    ALL
+    UPLOADER
+
+    @@schema("public")
+}
+
+model FilePermission {
+    id         String         @id @default(uuid())
+    fileId     String
+    accessedBy FileAccessedBy
+
+    file File @relation(fields: [fileId], references: [id], onDelete: Cascade)
+
+    @@map("file_permissions")
+    @@schema("public")
+}
