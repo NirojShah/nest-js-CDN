@@ -8,8 +8,10 @@ interface FileService {
     postFile(uploadFileDto: UploadFileDto, userId: string): Promise<ResponseApi>;
     getFile(fileId: string): Promise<ResponseApi>;
     getFiles(): Promise<ResponseApi>;
+    getFilePermissions(fileId: string): Promise<ResponseApi>;
     deleteFile(fileId: string): Promise<ResponseApi>;
     updateFile(fileId: string, updateFileDto: UpdateFileDto): Promise<ResponseApi>;
+    updateFilePermission(fileId: string, accessedBy: string): Promise<ResponseApi>;
 }
 
 @Injectable()
@@ -26,6 +28,7 @@ class FileServiceImpl implements FileService {
             const response = await this.fileRepository.uploadFile(
                 {
                     ...uploadFileDto,
+                    accessedBy: uploadFileDto.accessedBy ?? 'ALL',
                     uploadedBy: uploadFileDto.uploadedBy ?? userId,
                 },
                 fileBuffer
@@ -57,6 +60,7 @@ class FileServiceImpl implements FileService {
             data: file
         };
     }
+
     async getFiles(): Promise<ResponseApi> {
         const files = await this.fileRepository.getFiles();
         return {
@@ -65,6 +69,21 @@ class FileServiceImpl implements FileService {
             data: files,
         };
     }
+
+    async getFilePermissions(fileId: string): Promise<ResponseApi> {
+        const file = await this.fileRepository.fileExists(fileId);
+        if (!file) {
+            throw new Error("File not found");
+        }
+
+        const permissions = await this.fileRepository.getFilePermissions(fileId);
+        return {
+            statusCode: 200,
+            message: "File permissions retrieved successfully",
+            data: permissions,
+        };
+    }
+
     async deleteFile(fileId: string): Promise<ResponseApi> {
         const file = await this.fileRepository.fileExists(fileId);
         if (!file) {
@@ -77,6 +96,7 @@ class FileServiceImpl implements FileService {
             data: null
         };
     }
+
     async updateFile(fileId: string, updateFileDto: UpdateFileDto): Promise<ResponseApi> {
         const fileExists = await this.fileRepository.fileExists(fileId)
         if (!fileExists) {
@@ -91,7 +111,21 @@ class FileServiceImpl implements FileService {
             data: updatedFile
         }
     }
-}
 
+    async updateFilePermission(fileId: string, accessedBy: string): Promise<ResponseApi> {
+        const fileExists = await this.fileRepository.fileExists(fileId);
+        if (!fileExists) {
+            throw new Error("File not found");
+        }
+
+        const updatedPermission = await this.fileRepository.updateFilePermission(fileId, accessedBy);
+
+        return {
+            statusCode: 200,
+            message: "File permission updated successfully",
+            data: updatedPermission,
+        };
+    }
+}
 
 export default FileServiceImpl;
