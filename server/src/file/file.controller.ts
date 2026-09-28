@@ -5,6 +5,8 @@ import type UpdateFileDto from './file-dto/update-file.dto.js';
 import FileServiceImpl from './file.service.js';
 import type { ResponseApi } from '../response/response.interface.js';
 import type { File } from '@prisma/client';
+import { UserData } from '../auth/user-data.decorator.js';
+import type { GenerateTokenType } from '../user/user-auth/auth.service.js';
 
 @Controller('file')
 export class FileController {
@@ -126,6 +128,16 @@ export class FileController {
             statusCode: data.statusCode,
             data: data.data,
         };
+    }
+
+    @Get("/latest-uploads")
+    async getLatestfiles(@UserData() userData: GenerateTokenType) {
+        const data = await this.fileService?.latestFiles(userData.id)
+        return {
+            message: data?.message,
+            statusCode: data?.statusCode,
+            data: data?.data
+        }
     }
 
 }

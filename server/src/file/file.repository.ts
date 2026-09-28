@@ -123,6 +123,18 @@ class FileRepository {
             }
         });
     }
+
+    async getFilesLatest(uploadedBy: string) {
+        return await this.prisma.file.findMany({
+            where: {
+                uploadedBy: uploadedBy
+            },
+            orderBy: {
+                uploadedAt: "desc"
+            },
+            take: 7
+        })
+    }
 }
 
 export default FileRepository;
