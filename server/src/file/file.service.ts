@@ -12,6 +12,7 @@ interface FileService {
     deleteFile(fileId: string): Promise<ResponseApi>;
     updateFile(fileId: string, updateFileDto: UpdateFileDto): Promise<ResponseApi>;
     updateFilePermission(fileId: string, accessedBy: string): Promise<ResponseApi>;
+    latestFiles(uploadedBy: string): Promise<ResponseApi>
 }
 
 @Injectable()
@@ -125,6 +126,22 @@ class FileServiceImpl implements FileService {
             message: "File permission updated successfully",
             data: updatedPermission,
         };
+    }
+
+    async latestFiles(uploadedBy: string): Promise<ResponseApi> {
+        const latestFiles = await this.fileRepository.getFilesLatest(uploadedBy)
+        if (!latestFiles) {
+            return {
+                message: "failed to fetch.",
+                statusCode: 500
+            }
+        }
+        return {
+            message: "successfully fetched",
+            statusCode: 200,
+            data: latestFiles
+        }
+
     }
 }
 
