@@ -6,12 +6,15 @@ import { PrismaModule } from './prisma/prisma.module.js';
 import { FileController } from './file/file.controller.js';
 import { FileModule } from './file/file.module.js';
 import { AuthGuard } from './auth/auth.guard.js';
+import { DashboardController } from './dashboard/dashboard.controller.js';
+import { DashboardService } from './dashboard/dashboard.service.js';
+import { DashboardModule } from './dashboard/dashboard.module.js';
 @Module({
-  imports: [UserModule, PrismaModule, FileModule
+  imports: [UserModule, PrismaModule, FileModule, DashboardModule
   ],
-  controllers: [AppController, FileController,
+  controllers: [AppController, FileController, DashboardController,
   ],
-  providers: [AppService, AuthGuard
+  providers: [AppService, AuthGuard, DashboardService
   ],
 })
 export class AppModule { }
