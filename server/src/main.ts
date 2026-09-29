@@ -6,6 +6,7 @@ import { AuthGuard } from './auth/auth.guard.js';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  app.enableCors();
   app.useGlobalGuards(app.get(AuthGuard));
   app.useGlobalInterceptors(new TransformInterceptor());
   await app.listen(process.env.PORT ?? 3000);
