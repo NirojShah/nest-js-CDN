@@ -7,7 +7,7 @@ import FileRepository from "./file.repository.js";
 interface FileService {
     postFile(uploadFileDto: UploadFileDto, userId: string): Promise<ResponseApi>;
     getFile(fileId: string): Promise<ResponseApi>;
-    getFiles(): Promise<ResponseApi>;
+    getFiles(uploadedBy: string, page: number, limit: number): Promise<ResponseApi>;
     getFilePermissions(fileId: string): Promise<ResponseApi>;
     deleteFile(fileId: string): Promise<ResponseApi>;
     updateFile(fileId: string, updateFileDto: UpdateFileDto): Promise<ResponseApi>;
@@ -30,7 +30,7 @@ class FileServiceImpl implements FileService {
                 {
                     ...uploadFileDto,
                     accessedBy: uploadFileDto.accessedBy ?? 'ALL',
-                    uploadedBy: uploadFileDto.uploadedBy ?? userId,
+                    uploadedBy: userId,
                 },
                 fileBuffer
             );
@@ -62,8 +62,9 @@ class FileServiceImpl implements FileService {
         };
     }
 
-    async getFiles(): Promise<ResponseApi> {
-        const files = await this.fileRepository.getFiles();
+    async getFiles(uploadedBy: string, page: number, limit: number): Promise<ResponseApi> {
+        const offset: number = (page - 1) * limit
+        const files = await this.fileRepository.getFiles(uploadedBy, limit, offset);
         return {
             statusCode: 200,
             message: "Files retrieved successfully",
