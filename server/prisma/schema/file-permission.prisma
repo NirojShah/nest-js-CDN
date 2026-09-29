@@ -10,7 +10,7 @@ model FilePermission {
     fileId     String
     accessedBy FileAccessedBy
 
-    file File @relation(fields: [fileId], references: [id], onDelete: Cascade)
+    file Files @relation(fields: [fileId], references: [id], onDelete: Cascade)
 
     @@map("file_permissions")
     @@schema("public")
