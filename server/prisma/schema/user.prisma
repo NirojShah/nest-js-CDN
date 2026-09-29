@@ -6,7 +6,7 @@ model User {
   updatedAt DateTime @updatedAt
   password  String
 
-  files File[]
+  files Files[]
 
   @@map("users")
   @@schema("public")
