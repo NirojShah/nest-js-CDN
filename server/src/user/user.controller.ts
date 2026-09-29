@@ -25,8 +25,8 @@ import { UserData } from '../auth/user-data.decorator.js';
 @Controller('users')
 export class UserController {
   constructor(
-    @Optional() private readonly userService?: UserService,
-    @Optional() private readonly AuthService?: AuthenticateUser,
+    @Optional() private readonly userService: UserService,
+    @Optional() private readonly AuthService: AuthenticateUser,
   ) { }
 
   @Post()
@@ -91,9 +91,6 @@ export class UserController {
 
   @Post("/login")
   async login(@Body() loginDto: LoginDto): Promise<ResponseApi> {
-    if (!this.userService || !this.AuthService) {
-      throw new Error('Authentication services are not available');
-    }
 
     const data = await this.userService.loginUser(loginDto);
     const generateToken = await this.AuthService.generateToken(data as GenerateTokenType)
