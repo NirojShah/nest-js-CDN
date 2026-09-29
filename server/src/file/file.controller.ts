@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, Put, UploadedFile, UseInterceptors, Optional } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, Put, UploadedFile, UseInterceptors, Optional, Query } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import type UploadFileDto from './file-dto/upload-file.dto.js';
 import type UpdateFileDto from './file-dto/update-file.dto.js';
@@ -12,12 +12,12 @@ import type { GenerateTokenType } from '../user/user-auth/auth.service.js';
 export class FileController {
 
     constructor(
-        @Optional() private readonly fileService?: FileServiceImpl,
+        @Optional() private readonly fileService: FileServiceImpl,
     ) { }
 
     @Post('upload')
     @UseInterceptors(FileInterceptor('file'))
-    async uploadFile(@UploadedFile() file: any, @Body() body: Partial<UploadFileDto>): Promise<ResponseApi<File>> {
+    async uploadFile(@UploadedFile() file: any, @Body() body: Partial<UploadFileDto>, @UserData() userData: GenerateTokenType): Promise<ResponseApi<File>> {
         const fileService = this.fileService;
         if (!fileService) {
             throw new Error('FileService is not available');
@@ -29,7 +29,7 @@ export class FileController {
             fileType: body.fileType || file?.mimetype || 'application/octet-stream',
             accessedBy: body.accessedBy ?? 'ALL',
             file: file?.buffer ?? Buffer.from([]),
-            uploadedBy: body.uploadedBy ?? 'system',
+            uploadedBy: userData.id,
         };
 
         const data = await fileService.postFile(payload, payload.uploadedBy);
@@ -37,6 +37,27 @@ export class FileController {
             message: data.message,
             statusCode: data.statusCode,
             data: data.data as File,
+        };
+    }
+
+    @Get('files')
+    async getFiles(
+        @Query('page') page: number = 1,
+        @Query('limit') limit: number = 10,
+        @UserData() userData: GenerateTokenType,
+    ): Promise<ResponseApi<File[]>> {
+        const userId: string = userData.id;
+
+        // Convert query strings to numbers just to be safe
+        const pageNum = Number(page) || 1;
+        const limitNum = Number(limit) || 10;
+
+        const data = await this.fileService.getFiles(userId, pageNum, limitNum);
+
+        return {
+            statusCode: data.statusCode,
+            message: data.message,
+            data: data.data as File[],
         };
     }
 
@@ -67,21 +88,6 @@ export class FileController {
             statusCode: data.statusCode,
             message: data.message,
             data: data.data,
-        };
-    }
-
-    @Get('files')
-    async getFiles(): Promise<ResponseApi<File[]>> {
-        const fileService = this.fileService;
-        if (!fileService) {
-            throw new Error('FileService is not available');
-        }
-
-        const data = await fileService.getFiles();
-        return {
-            statusCode: data.statusCode,
-            message: data.message,
-            data: data.data as File[],
         };
     }
 
