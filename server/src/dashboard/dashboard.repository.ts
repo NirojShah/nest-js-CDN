@@ -20,7 +20,13 @@ class DashboardRepository implements DashboardRepositoryI {
         return Number(fileSize._sum) || 0;
     }
     async totalFiles(userId: string): Promise<number> {
-        throw new Error("Not implemented.")
+        const countFiles = await this.prisma.file.count({
+            where: {
+                uploadedBy: userId
+            }
+        })
+
+        return countFiles | 0
     }
     async lastUploadedFile(userId: string): Promise<LastUploadFile | null> {
         throw new Error("Not implemented.")
