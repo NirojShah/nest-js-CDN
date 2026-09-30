@@ -29,7 +29,20 @@ class DashboardRepository implements DashboardRepositoryI {
         return countFiles | 0
     }
     async lastUploadedFile(userId: string): Promise<LastUploadFile | null> {
-        throw new Error("Not implemented.")
+        const latestFile = await this.prisma.file.findFirst({
+            where: {
+                uploadedBy: userId
+            },
+            orderBy: {
+                uploadedAt: "asc"
+            },
+            select: {
+                fileName: true,
+                uploadedAt: true
+            }
+        })
+
+        return latestFile;
     }
 }
 
