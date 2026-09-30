@@ -2,7 +2,9 @@ import type { File } from "@prisma/client";
 import type { PrismaService } from "../prisma/prisma.service.js";
 import type DashboardRepositoryI from "./DashboardRepositoryInterface.js";
 import type { LastUploadFile } from "./DashboardRepositoryInterface.js";
+import { Injectable } from "@nestjs/common";
 
+@Injectable()
 class DashboardRepository implements DashboardRepositoryI {
     constructor(private readonly prisma: PrismaService) {
 
