@@ -1,9 +1,15 @@
+import { PartialType } from "@nestjs/mapped-types";
 import type { File } from "@prisma/client";
+
+export type LastUploadFile = {
+    fileName: string;
+    uploadedAt: Date
+}
 
 interface DashboardRepositoryI {
     totalFileSizeByUserId(userId: string): Promise<number>;
     totalFiles(userId: string): Promise<number>;
-    lastUploadedFile(userId: string): Promise<File>
+    lastUploadedFile(userId: string): Promise<LastUploadFile | null>
 }
 
 export default DashboardRepositoryI;
