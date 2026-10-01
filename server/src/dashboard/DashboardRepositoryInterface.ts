@@ -1,6 +1,3 @@
-import { PartialType } from "@nestjs/mapped-types";
-import type { File } from "@prisma/client";
-
 export type LastUploadFile = {
     fileName: string;
     uploadedAt: Date
