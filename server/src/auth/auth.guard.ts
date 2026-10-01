@@ -49,6 +49,7 @@ export class AuthGuard implements CanActivate {
 
     const user = await this.authenticateUser.verifyToken(token);
 
+    console.log(user)
 
     if (!user) {
       throw new UnauthorizedException(
