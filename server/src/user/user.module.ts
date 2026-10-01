@@ -7,11 +7,9 @@ import { UserController } from './user.controller.js';
 import { PrismaModule } from '../prisma/prisma.module.js';
 
 import AuthenticateUser from './user-auth/auth.service.js';
-import { DashboardModule } from '../dashboard/dashboard.module.js';
-import { FileModule } from '../file/file.module.js';
 
 @Module({
-  imports: [PrismaModule],
+  imports: [PrismaModule,],
   controllers: [UserController,],
   providers: [UserService, UserRepository, AuthenticateUser,],
   exports: [UserService, AuthenticateUser,],

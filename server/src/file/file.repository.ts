@@ -20,7 +20,6 @@ class FileRepository {
 
         console.log("------------------------------------------------")
 
-        console.log("uploadFileDto: ", uploadFileDto)
         console.log(uploadFileDto)
 
         console.log("------------------------------------------------")
