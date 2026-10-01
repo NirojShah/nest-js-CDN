@@ -2,6 +2,7 @@
   <header class="topbar">
     <div class="brand-block">
       <span class="brand-badge">CDN</span>
+
       <div>
         <p class="eyebrow">Content Delivery</p>
         <h1>Dashboard</h1>
@@ -9,61 +10,96 @@
     </div>
 
     <input #fileInput type="file" hidden (change)="onFileSelected($event)" />
-    <button type="button" class="primary-button" (click)="fileInput.click()">
+
+    <button type="button" class="primary-button" [disabled]="loading" (click)="fileInput.click()">
       {{ loading ? 'Uploading…' : 'Upload file' }}
     </button>
   </header>
 
   @if (errorMessage) {
-    <p class="error-message">{{ errorMessage }}</p>
+  <p class="error-message">
+    {{ errorMessage }}
+  </p>
   }
 
+  <!-- Dashboard statistics -->
   <section class="stats-grid" aria-label="Content metrics">
-    @for (stat of stats; track stat.label) {
-      <article class="stat-card" [class]="'tone-' + stat.tone">
-        <p>{{ stat.label }}</p>
-        <h2>{{ stat.value }}</h2>
-        <span>{{ stat.detail }}</span>
-      </article>
+    @for (stat of stats(); track stat.label) {
+    <article class="stat-card" [class]="'tone-' + stat.tone">
+      <p class="stat-label">
+        {{ stat.label }}
+      </p>
+
+      <h2 class="stat-value">
+        {{ stat.value }}
+      </h2>
+
+      <span class="stat-detail">
+        {{ stat.detail }}
+      </span>
+    </article>
     }
   </section>
 
+  <!-- Content -->
   <section class="content-grid">
+
+    <!-- Quick actions -->
     <article class="panel">
       <div class="panel-header">
         <h3>Quick actions</h3>
-        <a href="#" aria-label="View all actions">View all</a>
+
+        <a href="#" aria-label="View all actions">
+          View all
+        </a>
       </div>
 
       <ul class="action-list">
         @for (action of quickActions; track action) {
-          <li>
-            <span class="dot"></span>
-            <span>{{ action }}</span>
-          </li>
+        <li>
+          <span class="dot"></span>
+          <span>{{ action }}</span>
+        </li>
         }
       </ul>
     </article>
 
+    <!-- Recent uploads -->
     <article class="panel">
       <div class="panel-header">
         <h3>Recent uploads</h3>
-        <a href="#" aria-label="View all files">Open library</a>
+
+        <a href="#" aria-label="View all files">
+          Open library
+        </a>
       </div>
 
+      @if (recentFiles.length > 0) {
       <ul class="file-list">
         @for (file of recentFiles; track file.name) {
-          <li>
-            <div>
-              <strong>{{ file.name }}</strong>
-              <small>{{ file.type }} · {{ file.size }}</small>
-            </div>
-            <span class="status" [class]="file.status.toLowerCase() === 'published' ? 'published' : file.status.toLowerCase() === 'ready' ? 'ready' : 'processing'">
-              {{ file.status }}
-            </span>
-          </li>
+        <li>
+          <div class="file-info">
+            <strong>
+              {{ file.name }}
+            </strong>
+
+            <small>
+              {{ file.type }} · {{ file.size }}
+            </small>
+          </div>
+
+          <span class="status ready">
+            {{ file.status }}
+          </span>
+        </li>
         }
       </ul>
+      } @else {
+      <p class="empty-state">
+        No files uploaded yet.
+      </p>
+      }
     </article>
+
   </section>
 </section>
