@@ -11,7 +11,7 @@ import { DashboardService } from './dashboard/dashboard.service.js';
 import { DashboardModule } from './dashboard/dashboard.module.js';
 @Module({
   imports: [UserModule, PrismaModule, FileModule, DashboardModule],
-  controllers: [AppController, FileController, DashboardController],
+  controllers: [AppController],
   providers: [AppService, AuthGuard],
 })
 export class AppModule { }
