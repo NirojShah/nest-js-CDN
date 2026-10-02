@@ -12,6 +12,17 @@ export interface DashboardFile {
   uploadedBy?: string;
 }
 
+export interface LastUploadedFile {
+  fileName: string;
+  uploadedAt: string;
+}
+
+export interface DashboardTiles {
+  size: number;
+  totalFiles: number;
+  lastUploadedFile: LastUploadedFile | null;
+}
+
 export interface DashboardResponse<T = unknown> {
   statusCode: number;
   message: string;
@@ -23,35 +34,55 @@ export interface DashboardResponse<T = unknown> {
 export class HomeService {
   private readonly http = inject(HttpClient);
   private readonly authService = inject(AuthService);
-  private readonly url = 'http://localhost:3000/file';
+  private readonly url = 'http://localhost:3000';
 
   fetchFiles(): Observable<DashboardResponse<DashboardFile[]>> {
-    return this.http.get<DashboardResponse<DashboardFile[]>>(`${this.url}/files`, {
-      headers: this.authService.getAuthHeaders(),
-    });
+    return this.http.get<DashboardResponse<DashboardFile[]>>(
+      `${this.url}/files`,
+      {
+        headers: this.authService.getAuthHeaders(),
+      }
+    );
   }
 
   fetchNoOfFiles(): Observable<number> {
     return this.fetchFiles().pipe(
-      map((response) => response.data?.length ?? 0),
+      map((response) => response.data?.length ?? 0)
     );
   }
 
   fetchRecentFiles(): Observable<DashboardFile[]> {
     return this.fetchFiles().pipe(
-      map((response) => response.data ?? []),
+      map((response) => response.data ?? [])
     );
   }
 
   uploadFile(file: File): Observable<DashboardResponse<DashboardFile>> {
     const formData = new FormData();
+
     formData.append('file', file);
     formData.append('fileName', file.name);
     formData.append('fileSize', String(file.size));
-    formData.append('fileType', file.type || 'application/octet-stream');
+    formData.append(
+      'fileType',
+      file.type || 'application/octet-stream'
+    );
 
-    return this.http.post<DashboardResponse<DashboardFile>>(`${this.url}/upload`, formData, {
-      headers: this.authService.getAuthHeaders(),
-    });
+    return this.http.post<DashboardResponse<DashboardFile>>(
+      `${this.url}/upload`,
+      formData,
+      {
+        headers: this.authService.getAuthHeaders(),
+      }
+    );
+  }
+
+  fetchDashboardTiles(): Observable<DashboardResponse<DashboardTiles>> {
+    return this.http.get<DashboardResponse<DashboardTiles>>(
+      `${this.url}/dashboard/tiles`,
+      {
+        headers: this.authService.getAuthHeaders(),
+      }
+    );
   }
 }
