@@ -19,7 +19,7 @@
   }
 
   <section class="stats-grid" aria-label="Content metrics">
-    @for (stat of stats; track stat.label) {
+    @for (stat of stats(); track stat.label) {
       <article class="stat-card" [class]="'tone-' + stat.tone">
         <p>{{ stat.label }}</p>
         <h2>{{ stat.value }}</h2>

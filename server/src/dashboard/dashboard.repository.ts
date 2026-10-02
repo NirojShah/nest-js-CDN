@@ -1,8 +1,8 @@
 import type { File } from "@prisma/client";
-import type { PrismaService } from "../prisma/prisma.service.js";
 import type DashboardRepositoryI from "./DashboardRepositoryInterface.js";
 import type { LastUploadFile } from "./DashboardRepositoryInterface.js";
 import { Injectable } from "@nestjs/common";
+import { PrismaService } from "../prisma/prisma.service.js";
 
 @Injectable()
 class DashboardRepository implements DashboardRepositoryI {
@@ -19,8 +19,9 @@ class DashboardRepository implements DashboardRepositoryI {
             }
         })
 
-        return Number(fileSize._sum) || 0;
+        return Number(fileSize._sum.fileSize) || 0;
     }
+
     async totalFiles(userId: string): Promise<number> {
         const countFiles = await this.prisma.file.count({
             where: {
