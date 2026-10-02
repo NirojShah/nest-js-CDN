@@ -7,6 +7,7 @@ import DashboardRepository from "./dashboard.repository.js";
 import { DashboardService } from "./dashboard.service.js";
 
 @Module({
+    imports: [],
     controllers: [DashboardController],
     providers: [
         UserRepository,
