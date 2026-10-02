@@ -19,8 +19,9 @@ class DashboardRepository implements DashboardRepositoryI {
             }
         })
 
-        return Number(fileSize._sum) || 0;
+        return Number(fileSize._sum.fileSize) || 0;
     }
+
     async totalFiles(userId: string): Promise<number> {
         const countFiles = await this.prisma.file.count({
             where: {
