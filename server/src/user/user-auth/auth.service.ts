@@ -24,15 +24,6 @@ class AuthenticateUser {
         userDetails: GenerateTokenType
     ): Promise<TokenResponse> {
 
-
-
-        console.log("-------------------------------------------------")
-
-        console.log(userDetails);
-
-        console.log("-------------------------------------------------")
-
-
         const token = jwt.sign(
             userDetails,
             this.secretKey,
