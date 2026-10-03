@@ -16,16 +16,6 @@ class FileRepository {
         uploadFileDto: UploadFileDto,
         fileBuffer: Buffer,
     ) {
-
-
-        console.log("------------------------------------------------")
-
-        console.log(uploadFileDto)
-
-        console.log("------------------------------------------------")
-
-
-
         const normalizedBuffer = Buffer.isBuffer(fileBuffer)
             ? fileBuffer
             : Buffer.from(fileBuffer);
@@ -52,7 +42,7 @@ class FileRepository {
     }
 
     async getFiles(uploadBy: string, limit: number = 10, offset: number = 1) {
-        
+
         const files = await this.prisma.file.findMany({
             where: {
                 uploadedBy: uploadBy,
@@ -151,6 +141,14 @@ class FileRepository {
         return await this.prisma.file.findMany({
             where: {
                 uploadedBy: uploadedBy
+            },
+            select: {
+                id: true,
+                fileName: true,
+                fileSize: true,
+                fileType: true,
+                uploadedAt: true,
+                uploadedBy: true,
             },
             orderBy: {
                 uploadedAt: "desc"
