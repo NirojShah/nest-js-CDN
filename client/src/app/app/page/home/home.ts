@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { AuthService } from '../../../services/auth.service';
 import { HomeService, type DashboardFile, type DashboardResponse } from './home.service';
+import type ResponseDto from '../Response-DTO/response.dto';
 
 @Component({
   imports: [CommonModule],
@@ -25,12 +26,14 @@ export class Home implements OnInit {
     'Review analytics',
   ];
 
-  protected recentFiles: Array<{ name: string; size: string; type: string; status: string }> = [];
+  protected recentFiles = signal<DashboardFile[]>([]);
+
   protected loading = false;
   protected errorMessage = '';
 
   ngOnInit(): void {
     this.loadDashboardTiles();
+    this.fetchRecentFiles();
   }
 
 
@@ -72,5 +75,29 @@ export class Home implements OnInit {
         this.errorMessage = 'Upload failed. Please try again.';
       },
     });
+  }
+
+  convertToReadableSize(size: string): string {
+    const units = ['B', 'KB', 'MB', 'GB'];
+    let unitIndex = 0;
+    let fileSize = parseFloat(size);
+
+    while (fileSize >= 1024 && unitIndex < units.length - 1) {
+      fileSize /= 1024;
+      unitIndex++;
+    }
+
+    return `${fileSize.toFixed(2)} ${units[unitIndex]}`;
+  }
+
+  fetchRecentFiles(): void {
+    this.homeService.fetchRecentFiles().subscribe({
+      next: (response: ResponseDto<DashboardFile[]>) => {
+        this.recentFiles.set(response.data ?? []);
+      },
+      error: (error) => {
+
+      }
+    })
   }
 }

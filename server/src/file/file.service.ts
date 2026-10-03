@@ -131,6 +131,7 @@ class FileServiceImpl implements FileService {
 
     async latestFiles(uploadedBy: string): Promise<ResponseApi> {
         const latestFiles = await this.fileRepository.getFilesLatest(uploadedBy)
+        console.log({ latestFiles })
         if (!latestFiles) {
             return {
                 message: "failed to fetch.",

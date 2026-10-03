@@ -2,6 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { map, Observable } from 'rxjs';
 import { AuthService } from '../../../services/auth.service';
+import type ResponseDto from '../Response-DTO/response.dto';
 
 export interface DashboardFile {
   id?: string;
@@ -36,25 +37,10 @@ export class HomeService {
   private readonly authService = inject(AuthService);
   private readonly url = 'http://localhost:3000';
 
-  fetchFiles(): Observable<DashboardResponse<DashboardFile[]>> {
-    return this.http.get<DashboardResponse<DashboardFile[]>>(
-      `${this.url}/files`,
-      {
-        headers: this.authService.getAuthHeaders(),
-      }
-    );
-  }
-
-  fetchNoOfFiles(): Observable<number> {
-    return this.fetchFiles().pipe(
-      map((response) => response.data?.length ?? 0)
-    );
-  }
-
-  fetchRecentFiles(): Observable<DashboardFile[]> {
-    return this.fetchFiles().pipe(
-      map((response) => response.data ?? [])
-    );
+  fetchRecentFiles(): Observable<ResponseDto<DashboardFile[]>> {
+    return this.http.get<ResponseDto<DashboardFile[]>>(`${this.url}/file/latest-uploads`, {
+      headers: this.authService.getAuthHeaders(),
+    })
   }
 
   uploadFile(file: File): Observable<DashboardResponse<DashboardFile>> {
