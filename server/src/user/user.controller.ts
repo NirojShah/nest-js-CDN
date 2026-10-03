@@ -107,9 +107,4 @@ export class UserController {
 
     throw new Error("Failed to login.")
   }
-
-  @Get("/testing")
-  async testApi(@UserData() userData: GenerateTokenType) {
-    console.log(userData)
-  }
 }

@@ -15,16 +15,19 @@
   </header>
 
   @if (errorMessage) {
-    <p class="error-message">{{ errorMessage }}</p>
+  <p class="error-message">{{ errorMessage }}</p>
   }
 
   <section class="stats-grid" aria-label="Content metrics">
     @for (stat of stats(); track stat.label) {
-      <article class="stat-card" [class]="'tone-' + stat.tone">
-        <p>{{ stat.label }}</p>
-        <h2>{{ stat.value }}</h2>
-        <span>{{ stat.detail }}</span>
-      </article>
+    <article class="stat-card" [class]="'tone-' + stat.tone">
+      <p>{{ stat.label }}</p>
+      @if (stat.label === 'Storage used') {
+      <h2>{{ convertToReadableSize(stat.value) }}</h2>
+      } @else {
+      <h2>{{ stat.value }}</h2>
+      }
+    </article>
     }
   </section>
 
@@ -37,10 +40,10 @@
 
       <ul class="action-list">
         @for (action of quickActions; track action) {
-          <li>
-            <span class="dot"></span>
-            <span>{{ action }}</span>
-          </li>
+        <li>
+          <span class="dot"></span>
+          <span>{{ action }}</span>
+        </li>
         }
       </ul>
     </article>
@@ -52,16 +55,17 @@
       </div>
 
       <ul class="file-list">
-        @for (file of recentFiles; track file.name) {
-          <li>
-            <div>
-              <strong>{{ file.name }}</strong>
-              <small>{{ file.type }} · {{ file.size }}</small>
-            </div>
-            <span class="status" [class]="file.status.toLowerCase() === 'published' ? 'published' : file.status.toLowerCase() === 'ready' ? 'ready' : 'processing'">
-              {{ file.status }}
-            </span>
-          </li>
+        @for (file of recentFiles(); track file.fileName) {
+        <li>
+          <div>
+            <strong>{{ file.fileName }}</strong>
+            <small>{{ file.fileType }} · {{ file.fileSize }}</small>
+          </div>
+          <span class="status published">
+
+            {{ "published" }}
+          </span>
+        </li>
         }
       </ul>
     </article>
