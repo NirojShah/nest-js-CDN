@@ -61,6 +61,16 @@ export class FileController {
         };
     }
 
+    @Get("/latest-uploads")
+    async getLatestfiles(@UserData() userData: GenerateTokenType) {
+        const data = await this.fileService.latestFiles(userData.id)
+        return {
+            message: data?.message,
+            statusCode: data?.statusCode,
+            data: data?.data
+        }
+    }
+
     @Get(':id')
     async getFile(@Param('id') id: string): Promise<ResponseApi<File>> {
         const fileService = this.fileService;
@@ -134,16 +144,6 @@ export class FileController {
             statusCode: data.statusCode,
             data: data.data,
         };
-    }
-
-    @Get("/latest-uploads")
-    async getLatestfiles(@UserData() userData: GenerateTokenType) {
-        const data = await this.fileService?.latestFiles(userData.id)
-        return {
-            message: data?.message,
-            statusCode: data?.statusCode,
-            data: data?.data
-        }
     }
 
 }
