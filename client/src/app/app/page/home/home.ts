@@ -48,7 +48,7 @@ export class Home implements OnInit {
       },
 
       error: (error) => {
-        console.error('Error fetching dashboard tiles:', error);
+        this.errorMessage = 'Failed to fetch dashboard data.';
       }
     });
   }
@@ -96,7 +96,7 @@ export class Home implements OnInit {
         this.recentFiles.set(response.data ?? []);
       },
       error: (error) => {
-
+        this.errorMessage = error.message || 'Failed to fetch recent files.';
       }
     })
   }
