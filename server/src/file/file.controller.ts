@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, Put, UploadedFile, UseInterceptors, Optional, Query } from '@nestjs/common';
+import { Body, Controller, Delete, ForbiddenException, Get, Param, Patch, Post, Put, UploadedFile, UseInterceptors, Optional, Query } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import type UploadFileDto from './file-dto/upload-file.dto.js';
 import type UpdateFileDto from './file-dto/update-file.dto.js';
@@ -7,12 +7,14 @@ import type { ResponseApi } from '../response/response.interface.js';
 import type { File } from '@prisma/client';
 import { UserData } from '../auth/user-data.decorator.js';
 import type { GenerateTokenType } from '../user/user-auth/auth.service.js';
+import { FilePermissionService } from './file-permission.service.js';
 
 @Controller('file')
 export class FileController {
 
     constructor(
         @Optional() private readonly fileService: FileServiceImpl,
+        @Optional() private readonly filePermissionService?: FilePermissionService,
     ) { }
 
     @Post('upload')
@@ -97,6 +99,36 @@ export class FileController {
         return {
             statusCode: data.statusCode,
             message: data.message,
+            data: data.data,
+        };
+    }
+
+    @Post(':id/permissions')
+    async createFilePermission(
+        @Param('id') id: string,
+        @Body() body: { accessedBy?: string },
+        @UserData() userData: GenerateTokenType,
+    ): Promise<ResponseApi> {
+        const fileService = this.fileService;
+        const filePermissionService = this.filePermissionService;
+        if (!fileService) {
+            throw new Error('FileService is not available');
+        }
+        if (!filePermissionService) {
+            throw new Error('FilePermissionService is not available');
+        }
+
+        const fileResponse = await fileService.getFile(id);
+        const file = fileResponse.data;
+        if (!file || typeof file !== 'object' || !('uploadedBy' in file)
+            || file.uploadedBy !== userData.id) {
+            throw new ForbiddenException('You can only create permissions for your own files');
+        }
+
+        const data = await filePermissionService.create(id, body?.accessedBy);
+        return {
+            message: data.message,
+            statusCode: data.statusCode,
             data: data.data,
         };
     }
