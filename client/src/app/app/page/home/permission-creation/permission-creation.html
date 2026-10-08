@@ -1,0 +1,56 @@
+<article class="permission-panel" aria-labelledby="permission-heading">
+  <div class="panel-heading">
+    <div>
+      <p class="eyebrow">Access control</p>
+      <h2 id="permission-heading">Create a file permission</h2>
+    </div>
+    <span class="permission-icon" aria-hidden="true">＋</span>
+  </div>
+
+  @if (loadingFiles) {
+    <p class="form-hint" role="status">Loading your files…</p>
+  } @else if (files().length === 0) {
+    <p class="form-hint">Upload a file before creating a permission.</p>
+  } @else {
+    <form (ngSubmit)="createPermission()">
+      <label for="permission-file">File</label>
+      <select
+        id="permission-file"
+        name="fileId"
+        [(ngModel)]="selectedFileId"
+        [disabled]="submitting"
+        required
+      >
+        <option value="" disabled>Select a file</option>
+        @for (file of files(); track file.id) {
+          <option [value]="file.id">{{ file.fileName }}</option>
+        }
+      </select>
+
+      <label for="permission-access">Who can access it?</label>
+      <select
+        id="permission-access"
+        name="accessedBy"
+        [(ngModel)]="accessedBy"
+        [disabled]="submitting"
+      >
+        <option value="ALL">Everyone</option>
+        <option value="UPLOADER">Uploader only</option>
+      </select>
+
+      <p class="form-hint">This adds an access rule to the selected file.</p>
+
+      @if (successMessage) {
+        <p class="message success-message" role="status">{{ successMessage }}</p>
+      }
+
+      <button type="submit" [disabled]="submitting || !selectedFileId">
+        {{ submitting ? 'Creating…' : 'Create permission' }}
+      </button>
+    </form>
+  }
+
+  @if (errorMessage) {
+    <p class="message error-message" role="alert">{{ errorMessage }}</p>
+  }
+</article>
