@@ -2,10 +2,11 @@ import { CommonModule } from '@angular/common';
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { AuthService } from '../../../services/auth.service';
 import { HomeService, type DashboardFile, type DashboardResponse } from './home.service';
+import { PermissionCreation } from './permission-creation/permission-creation';
 import type ResponseDto from '../Response-DTO/response.dto';
 
 @Component({
-  imports: [CommonModule],
+  imports: [CommonModule, PermissionCreation],
   selector: 'app-home',
   styleUrl: './home.scss',
   templateUrl: './home.html',

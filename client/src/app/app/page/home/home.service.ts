@@ -13,6 +13,16 @@ export interface DashboardFile {
   uploadedBy?: string;
 }
 
+export interface PermissionFile {
+  id: string;
+  fileName: string;
+  fileSize: number;
+  fileType: string;
+  uploadedAt: string;
+}
+
+export type FileAccess = 'ALL' | 'UPLOADER';
+
 export interface LastUploadedFile {
   fileName: string;
   uploadedAt: string;
@@ -41,6 +51,20 @@ export class HomeService {
     return this.http.get<ResponseDto<DashboardFile[]>>(`${this.url}/file/latest-uploads`, {
       headers: this.authService.getAuthHeaders(),
     })
+  }
+
+  fetchFiles(): Observable<ResponseDto<PermissionFile[]>> {
+    return this.http.get<ResponseDto<PermissionFile[]>>(`${this.url}/file/files?limit=100`, {
+      headers: this.authService.getAuthHeaders(),
+    });
+  }
+
+  createFilePermission(fileId: string, accessedBy: FileAccess): Observable<ResponseDto<unknown>> {
+    return this.http.post<ResponseDto<unknown>>(
+      `${this.url}/file/${encodeURIComponent(fileId)}/permissions`,
+      { accessedBy },
+      { headers: this.authService.getAuthHeaders() },
+    );
   }
 
   uploadFile(file: File): Observable<DashboardResponse<DashboardFile>> {
