@@ -1,1 +1,11 @@
+<button
+  type="button"
+  class="theme-toggle"
+  (click)="theme.toggle()"
+  [attr.aria-label]="theme.isDark() ? 'Switch to light mode' : 'Switch to dark mode'"
+  [attr.title]="theme.isDark() ? 'Switch to light mode' : 'Switch to dark mode'"
+>
+  <span aria-hidden="true">{{ theme.isDark() ? '☀' : '☾' }}</span>
+  <span>{{ theme.isDark() ? 'Light mode' : 'Dark mode' }}</span>
+</button>
 <router-outlet />
