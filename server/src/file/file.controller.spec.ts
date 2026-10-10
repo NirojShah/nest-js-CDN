@@ -10,6 +10,7 @@ describe('FileController', () => {
   };
   const fileService = {
     getFile: vi.fn(),
+    updateFilePermission: vi.fn(),
   };
 
   beforeEach(async () => {
@@ -64,5 +65,64 @@ describe('FileController', () => {
       userData,
     )).rejects.toThrow('You can only create permissions for your own files');
     expect(permissionService.create).not.toHaveBeenCalled();
+  });
+
+  it('generates a public link for a file owned by the authenticated user', async () => {
+    const file = { id: 'file-id', uploadedBy: 'user-id' };
+    fileService.getFile.mockResolvedValue({ data: file });
+    fileService.updateFilePermission.mockResolvedValue({ statusCode: 200 });
+
+    await expect(controller.createPublicLink(
+      'file-id',
+      { protocol: 'https', get: () => 'cdn.example.com' } as never,
+      { id: 'user-id', email: 'user@example.com', name: 'Test User' },
+    )).resolves.toEqual({
+      statusCode: 200,
+      message: 'Public link generated successfully',
+      data: { publicUrl: 'https://cdn.example.com/file/public/file-id' },
+    });
+    expect(fileService.updateFilePermission).toHaveBeenCalledWith('file-id', 'ALL');
+  });
+
+  it('does not generate a public link for another user’s file', async () => {
+    fileService.getFile.mockResolvedValue({ data: { id: 'file-id', uploadedBy: 'another-user' } });
+
+    await expect(controller.createPublicLink(
+      'file-id',
+      { protocol: 'https', get: () => 'cdn.example.com' } as never,
+      { id: 'user-id', email: 'user@example.com', name: 'Test User' },
+    )).rejects.toThrow('You can only create public links for your own files');
+    expect(fileService.updateFilePermission).not.toHaveBeenCalled();
+  });
+
+  it('serves publicly shared file content', async () => {
+    const fileBuffer = Buffer.from('file content');
+    fileService.getFile.mockResolvedValue({
+      data: {
+        buffer: fileBuffer,
+        fileName: 'hello.txt',
+        fileType: 'text/plain',
+        permission: [{ accessedBy: 'ALL' }],
+      },
+    });
+    const response = {
+      setHeader: vi.fn(),
+      end: vi.fn(),
+    };
+
+    await controller.getPublicFile('file-id', response as never);
+
+    expect(response.setHeader).toHaveBeenCalledWith('Content-Type', 'text/plain');
+    expect(response.setHeader).toHaveBeenCalledWith('Content-Length', fileBuffer.length);
+    expect(response.end).toHaveBeenCalledWith(fileBuffer);
+  });
+
+  it('does not serve files that are not public', async () => {
+    fileService.getFile.mockResolvedValue({
+      data: { permission: [{ accessedBy: 'UPLOADER' }] },
+    });
+
+    await expect(controller.getPublicFile('file-id', {} as never))
+      .rejects.toThrow('Public file not found');
   });
 });
