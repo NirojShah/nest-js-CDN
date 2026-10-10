@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, NotFoundException } from "@nestjs/common";
 import type { ResponseApi } from "../response/response.interface.js";
 import type UpdateFileDto from "./file-dto/update-file.dto.js";
 import type UploadFileDto from "./file-dto/upload-file.dto.js";
@@ -53,7 +53,7 @@ class FileServiceImpl implements FileService {
     async getFile(fileId: string): Promise<ResponseApi> {
         const file = await this.fileRepository.fileExists(fileId);
         if (!file) {
-            throw new Error("File not found");
+            throw new NotFoundException("File not found");
         }
         return {
             statusCode: 200,
