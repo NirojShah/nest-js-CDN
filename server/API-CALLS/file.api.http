@@ -1,0 +1,10 @@
+@baseUrl = http://localhost:3000
+@fileId = 
+@token = 
+
+### Generate a public link (requires the file owner's bearer token)
+POST {{baseUrl}}/file/{{fileId}}/public-link
+Authorization: Bearer {{token}}
+
+### Download the file using its public link
+GET {{baseUrl}}/file/public/{{fileId}}
