@@ -25,6 +25,7 @@ export class AuthGuard implements CanActivate {
       request.path.includes('/status') ||
       request.path.includes('/login') ||
       request.path.includes('/signup') ||
+      (request.method === 'GET' && /^\/file\/public\/[^/]+\/?$/.test(request.path)) ||
       (request.method === 'POST' && request.path === '/users');
 
     if (isPublicRoute) {

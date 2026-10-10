@@ -1,5 +1,6 @@
-import { Body, Controller, Delete, ForbiddenException, Get, Param, Patch, Post, Put, UploadedFile, UseInterceptors, Optional, Query } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Delete, ForbiddenException, Get, NotFoundException, Param, Patch, Post, Put, Req, Res, UploadedFile, UseInterceptors, Optional, Query } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
+import type { Request, Response } from 'express';
 import type UploadFileDto from './file-dto/upload-file.dto.js';
 import type UpdateFileDto from './file-dto/update-file.dto.js';
 import FileServiceImpl from './file.service.js';
@@ -86,6 +87,55 @@ export class FileController {
             message: data.message,
             data: data.data as File,
         };
+    }
+
+    @Post(':id/public-link')
+    async createPublicLink(
+        @Param('id') id: string,
+        @Req() request: Request,
+        @UserData() userData: GenerateTokenType,
+    ): Promise<ResponseApi<{ publicUrl: string }>> {
+        const file = await this.getOwnedFile(id, userData.id);
+        const host = request.get('host');
+        if (!host) {
+            throw new BadRequestException('Unable to determine the public link host');
+        }
+
+        const publicUrl = new URL(
+            `/file/public/${encodeURIComponent(file.id)}`,
+            `${request.protocol}://${host}`,
+        ).toString();
+        await this.fileService.updateFilePermission(id, 'ALL');
+
+        return {
+            statusCode: 200,
+            message: 'Public link generated successfully',
+            data: { publicUrl },
+        };
+    }
+
+    @Get('public/:id')
+    async getPublicFile(@Param('id') id: string, @Res() response: Response): Promise<void> {
+        const fileService = this.fileService;
+        if (!fileService) {
+            throw new Error('FileService is not available');
+        }
+
+        const fileResponse = await fileService.getFile(id);
+        const file = fileResponse.data as (File & { permission?: { accessedBy: string }[] }) | undefined;
+        if (!file?.permission?.some(({ accessedBy }) => accessedBy === 'ALL')) {
+            throw new NotFoundException('Public file not found');
+        }
+
+        const fileBuffer = Buffer.from(file.buffer);
+        response.setHeader('Content-Type', file.fileType);
+        response.setHeader('Content-Length', fileBuffer.length);
+        response.setHeader(
+            'Content-Disposition',
+            `attachment; filename*=UTF-8''${encodeURIComponent(file.fileName)}`,
+        );
+        response.setHeader('X-Content-Type-Options', 'nosniff');
+        response.end(fileBuffer);
     }
 
     @Get(':id/permissions')
@@ -176,6 +226,20 @@ export class FileController {
             statusCode: data.statusCode,
             data: data.data,
         };
+    }
+
+    private async getOwnedFile(id: string, userId: string): Promise<File> {
+        const fileService = this.fileService;
+        if (!fileService) {
+            throw new Error('FileService is not available');
+        }
+
+        const fileResponse = await fileService.getFile(id);
+        const file = fileResponse.data as File | undefined;
+        if (!file || file.uploadedBy !== userId) {
+            throw new ForbiddenException('You can only create public links for your own files');
+        }
+        return file;
     }
 
 }
